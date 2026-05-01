@@ -83,8 +83,7 @@ namespace Siscomat.Repositories.Migrations
                 name: "constancias",
                 columns: table => new
                 {
-                    id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
                     folio_participante = table.Column<string>(type: "text", nullable: false),
                     curso_id = table.Column<int>(type: "integer", nullable: false),
                     plantilla_id = table.Column<int>(type: "integer", nullable: false),
