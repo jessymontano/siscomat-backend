@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Siscomat.Repositories;
+using Siscomat.Core.Interfaces;
+using Siscomat.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,6 +27,10 @@ builder.Services.AddCors(options =>
         .AllowCredentials();
     });
 });
+
+builder.Services.AddScoped<IParticipanteRepository, ParticipanteRepository>();
+builder.Services.AddScoped<IConstanciaRepository, ConstanciaRepository>();
+builder.Services.AddScoped<PublicService>();
 
 var app = builder.Build();
 

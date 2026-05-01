@@ -16,5 +16,6 @@ namespace Siscomat.Core.Interfaces
         Task UpdateAsync(Participante participante);
         Task DeleteAsync(string folio);
         Task<int> SaveChangesAsync();
+        Task<Participante?> GetByFolioWithConstanciasAsync(string folio); // Método específico para obtener un participante con sus constancias, requerido por PublicController
     }
 }
