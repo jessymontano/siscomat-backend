@@ -51,6 +51,10 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         };
     });
 
+builder.Services.AddScoped<IParticipanteRepository, ParticipanteRepository>();
+builder.Services.AddScoped<IConstanciaRepository, ConstanciaRepository>();
+builder.Services.AddScoped<PublicService>();
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())

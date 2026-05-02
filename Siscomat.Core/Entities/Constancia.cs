@@ -8,7 +8,7 @@ namespace Siscomat.Core.Entities
 {
     public class Constancia
     {
-        public int Id { get; init; }
+        public Guid Id { get; init; } = Guid.NewGuid();
         public string FolioParticipante { get; init; }
         public int CursoId { get; init; }
         public int PlantillaId { get; init; }

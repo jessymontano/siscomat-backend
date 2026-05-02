@@ -73,6 +73,9 @@ namespace Siscomat.Repositories
 
             modelBuilder.Entity<Constancia>(entity =>
             {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Id)
+                .ValueGeneratedOnAdd();
                 entity.HasOne(c => c.Curso)
                     .WithMany(curso => curso.Constancias)
                     .HasForeignKey(c => c.CursoId);
