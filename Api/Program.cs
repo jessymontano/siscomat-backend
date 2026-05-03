@@ -11,7 +11,8 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-var frontendUrl = builder.Configuration.GetValue<string>("FrontendSettings:Url") ?? "http://localhost:3000";
+var portalUrl = builder.Configuration.GetValue<string>("FrontendSettings:PortalPublicoUrl") ?? "http://localhost:5173";
+var panelUrl = builder.Configuration.GetValue<string>("FrontendSettings:PanelAdminUrl") ?? "http://localhost:5174";
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(connectionString)
@@ -22,7 +23,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowReact", policy =>
     {
-        policy.WithOrigins(frontendUrl)
+        policy.WithOrigins(portalUrl, panelUrl)
         .AllowAnyHeader()
         .AllowAnyMethod()
         .AllowCredentials();
@@ -63,6 +64,12 @@ builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<PublicService>();
 builder.Services.AddScoped<PlantillaService>();
 
+// 3. HttpClient para microservicio Python
+builder.Services.AddHttpClient("microservicio", client =>
+{
+    client.BaseAddress = new Uri(builder.Configuration["MicroservicioSettings:Url"]!);
+});
+
 // ==========================================================
 
 var app = builder.Build();
@@ -75,6 +82,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseCors("AllowReact");
 app.UseHttpsRedirection();
+app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 

@@ -24,6 +24,7 @@ namespace Siscomat.Repositories
             return await _db.Constancias
                 .Include(c => c.Participante)
                 .Include(c => c.Curso)
+                .Include(c => c.Plantilla)
                 .FirstOrDefaultAsync(c => c.Id == id);
         }
 
