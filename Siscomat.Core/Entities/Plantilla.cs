@@ -22,7 +22,7 @@ namespace Siscomat.Core.Entities
         {
             Nombre = nombre;
             Path = path;
-            CreatedAt = DateTime.Now;
+            CreatedAt = DateTime.UtcNow;
         }
 
         // por si se ocupa cambiar el nombre de la plantilla
