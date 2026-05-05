@@ -62,6 +62,7 @@ builder.Services.AddScoped<IPlantillaRepository, PlantillaRepository>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<PublicService>();
 builder.Services.AddScoped<PlantillaService>();
+builder.Services.AddScoped<GestorService>();
 
 // ==========================================================
 
