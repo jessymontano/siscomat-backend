@@ -84,21 +84,6 @@ namespace Siscomat.Api.Controllers
             return Ok($"Bienvenido, {userName}");
         }
 
-        [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] RegisterDTO registerDto, [FromServices] IGestorRepository gestorRepository)
-        {
-            string passwordHash = BCrypt.Net.BCrypt.HashPassword(registerDto.Password);
-            var gestor = new Gestor
-            {
-                Nombre = registerDto.Nombre,
-                Apellido1 = registerDto.Apellido1,
-                Apellido2 = registerDto.Apellido2,
-                Correo = registerDto.Correo,
-                PasswordHash = passwordHash,
-                EsAdmin = true
-            };
-            await gestorRepository.AddAsync(gestor);
-            return Ok(new { message = "Registro exitoso" });
-        }
+        
     }
 }
