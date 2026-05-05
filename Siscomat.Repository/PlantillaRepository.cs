@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Siscomat.Core.Entities;
 using Siscomat.Core.Interfaces;
+using System.Linq;
 
 namespace Siscomat.Repositories
 {
@@ -15,12 +16,17 @@ namespace Siscomat.Repositories
 
         public async Task<Plantilla?> GetByIdAsync(int id)
         {
-            return await _db.Plantillas.FirstOrDefaultAsync(p => p.Id == id);
+            return await _db.Plantillas
+                .Include(p => p.Constancias)
+                .FirstOrDefaultAsync(p => p.Id == id);
         }
 
         public async Task<IEnumerable<Plantilla>> GetAllAsync()
         {
-            return await _db.Plantillas.ToListAsync();
+            return await _db.Plantillas
+                .Include(p => p.Constancias)
+                .OrderByDescending(p => p.CreatedAt)
+                .ToListAsync();
         }
 
         public async Task AddAsync(Plantilla plantilla)
@@ -30,7 +36,7 @@ namespace Siscomat.Repositories
 
         public async Task DeleteAsync(int id)
         {
-            var plantilla = await GetByIdAsync(id);
+            var plantilla = await _db.Plantillas.FirstOrDefaultAsync(p => p.Id == id);
             if (plantilla != null)
                 _db.Plantillas.Remove(plantilla);
         }

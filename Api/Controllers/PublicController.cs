@@ -39,8 +39,12 @@ namespace Siscomat.Api.Controllers
         [HttpGet("constancia/{id:Guid}/pdf")]
         public async Task<IActionResult> DownloadPdf(Guid id)
         {
-            // TODO: implementar cuando el microservicio Python esté listo
-            return StatusCode(501, new { error = "No implementado aún." });
+            var pdfBytes = await _publicService.GenerarPdfAsync(id);
+            
+            if (pdfBytes == null) 
+                return NotFound(new { error = "No existe una constancia con ese id." });
+
+            return File(pdfBytes, "application/pdf", $"constancia_{id}.pdf");
         }
 
         [HttpGet("validar/{id:Guid}")]

@@ -24,7 +24,8 @@ namespace Siscomat.Api.Controllers
             {
                 id = p.Id,
                 nombre = p.Nombre,
-                created_at = p.CreatedAt
+                created_at = p.CreatedAt,
+                en_uso = p.Constancias.Any()
             }));
         }
 
@@ -47,22 +48,42 @@ namespace Siscomat.Api.Controllers
             if (!archivo.ContentType.Equals("application/pdf", StringComparison.OrdinalIgnoreCase))
                 return BadRequest(new { error = "El archivo debe ser un PDF." });
 
-            var plantilla = await _plantillaService.SubirAsync(nombre, archivo);
-
-            return CreatedAtAction(nameof(GetAll), new
+            try
             {
-                id = plantilla.Id,
-                nombre = plantilla.Nombre,
-                created_at = plantilla.CreatedAt
-            });
+                var plantilla = await _plantillaService.SubirAsync(nombre, archivo);
+
+                return CreatedAtAction(nameof(GetAll), new
+                {
+                    id = plantilla.Id,
+                    nombre = plantilla.Nombre,
+                    created_at = plantilla.CreatedAt,
+                    en_uso = false
+                });
+            }
+            catch (PlantillaInvalidaException ex)
+            {
+                return BadRequest(new 
+                { 
+                    error = "La plantilla no cuenta con los placeholders requeridos.",
+                    detalles = ex.Detalles 
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = ex.Message });
+            }
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Eliminar(int id)
         {
-            var eliminado = await _plantillaService.EliminarAsync(id);
+            var (eliminado, enUso) = await _plantillaService.EliminarAsync(id);
+
             if (!eliminado)
                 return NotFound(new { error = "No existe una plantilla con ese id." });
+
+            if (enUso)
+                return Conflict(new { error = "La plantilla ya fue usada para generar constancias y no puede eliminarse." });
 
             return Ok(new { mensaje = "Plantilla eliminada exitosamente." });
         }
