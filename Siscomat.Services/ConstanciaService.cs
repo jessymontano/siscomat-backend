@@ -56,8 +56,8 @@ namespace Siscomat.Services
         private readonly string _pythonApiUrl;
         private readonly string _pythonApiKey;
 
-        private static readonly Regex FolioRegex = new Regex(@"^\d{4}-\d{4}-\d{2}$", RegexOptions.Compiled);
-
+        private static readonly Regex FolioRegex = new Regex(@"^\d{4}-\d{4}-\d+$", RegexOptions.Compiled);
+        
         private readonly int _limiteNombreParticipante;
         private readonly int _limiteApellidoParticipante;
         private readonly int _limiteNombreCurso;
