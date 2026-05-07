@@ -15,7 +15,7 @@ var portalUrl = builder.Configuration.GetValue<string>("FrontendSettings:PortalP
 var panelUrl = builder.Configuration.GetValue<string>("FrontendSettings:PanelAdminUrl") ?? "http://localhost:5174";
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseNpgsql(connectionString)
+    options.UseNpgsql(connectionString, b => b.MigrationsAssembly("Siscomat.Repositories"))
     .UseSnakeCaseNamingConvention()
 );
 
@@ -85,5 +85,38 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+
+// migraciones
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var context = services.GetRequiredService<ApplicationDbContext>();
+        context.Database.Migrate();
+        if (!context.Gestores.Any(g => g.Correo == "admin@admin.com"))
+        {
+            var admin = new Siscomat.Core.Entities.Gestor
+            {
+                Nombre = "Karl",
+                Apellido1 = "Marx",
+                Apellido2 = "Pressman",
+                Correo = "admin@admin.com",
+                EsAdmin = true,
+                PasswordHash = "$2a$11$TyFYT4/OunoilD7K176mI.dqEjv.p8Gp950zLORjXbZrV5JvtVEV2"
+            };
+            context.Gestores.Add(admin);
+            context.SaveChanges();
+
+            var logger = services.GetRequiredService<ILogger<Program>>();
+            logger.LogInformation("Usuario admin creado");
+        }
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "Ocurrió un error durante la migración de la base de datos.");
+    }
+}
 
 app.Run();

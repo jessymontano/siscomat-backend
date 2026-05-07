@@ -485,3 +485,6 @@ $RECYCLE.BIN/
 
 # Otros
 Api/plantillas
+
+# carpeta del volumen de docker
+data/

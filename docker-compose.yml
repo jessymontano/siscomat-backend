@@ -1,0 +1,50 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: siscomat_backend
+    ports:
+      - "8086:8080"
+    environment:
+      - AllowedHosts=*
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ConnectionStrings__DefaultConnection=Host=db;Database=siscomat_db;Username=postgres;Password=pwd
+      - FrontendSettings__PortalPublicoUrl=http://host.docker.internal:5173
+      - FrontendSettings__PanelAdminUrl=http://host.docker.internal:5174
+      - MicroservicioSettings__Url=http://siscomat-pdf:8000
+      - MicroservicioSettings__ApiKey=siscomat_token_seguro_2026
+      - Storage__PlantillasPath=plantillas
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./data/plantillas:/app/plantillas
+    networks:
+      - siscomat_network
+      - default
+  
+  db:
+    image: postgres:16-alpine
+    container_name: siscomat_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: pwd
+      POSTGRES_DB: siscomat_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d siscomat_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
+
+networks:
+  siscomat_network:
+    external: true
