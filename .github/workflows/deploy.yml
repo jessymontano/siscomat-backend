@@ -1,0 +1,25 @@
+name: Deploy backend
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Connect via SSH and update
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          script: |
+            cd ~/siscomat/siscomat-backend
+            git pull origin main
+            cd ~/siscomat/siscomat-deploy
+            docker compose up -d --build api
+            docker image prune -f
