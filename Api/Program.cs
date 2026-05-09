@@ -8,7 +8,11 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    var xmlFilename = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
+});
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 var portalUrl = builder.Configuration.GetValue<string>("FrontendSettings:PortalPublicoUrl") ?? "http://localhost:5173";

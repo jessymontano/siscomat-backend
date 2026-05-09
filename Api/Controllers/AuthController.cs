@@ -1,16 +1,16 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Siscomat.Core.DTOs;
-using Siscomat.Core.Entities;
-using Siscomat.Core.Interfaces;
 using Siscomat.Services;
 using System.Security.Claims;
 
 namespace Siscomat.Api.Controllers
 {
+    /// <summary>
+    /// Controlador para manejar la autenticación de usuarios (gestores). Proporciona endpoints para iniciar sesión, cerrar sesión y verificar el estado de autenticación. Utiliza cookies para mantener la sesión del usuario y claims para almacenar información relevante del usuario autenticado.
+    /// </summary>
     [Route("api/auth")]
     [ApiController]
     public class AuthController : ControllerBase
@@ -22,7 +22,16 @@ namespace Siscomat.Api.Controllers
             _authService = loginService;
         }
 
+        /// <summary>
+        /// Inicia sesión para un gestor utilizando su correo y contraseña. Si las credenciales son correctas, se crea una cookie de autenticación con los claims del usuario y se devuelve un mensaje de éxito junto con la información básica del usuario.
+        /// </summary>
+        /// <param name="loginDto">Objeto que contiene el correo y la contraseña del gestor.</param>
+        /// <returns>Resultado de la operación de inicio de sesión.</returns>
+        /// <response code="200">Inicio de sesión exitoso.</response>
+        /// <response code="401">Correo o contraseña incorrectos.</response>
         [HttpPost("login")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> Login([FromBody] LoginDTO loginDto)
         {
             var gestor = await _authService.LoginAsync(loginDto);
@@ -63,6 +72,10 @@ namespace Siscomat.Api.Controllers
             });
         }
 
+        /// <summary>
+        /// Cierra la sesión del usuario actual eliminando la cookie de autenticación.
+        /// </summary>
+        /// <returns>Resultado de la operación de cierre de sesión.</returns>
         [HttpPost("logout")]
         public async Task<IActionResult> Logout()
         {
@@ -76,8 +89,18 @@ namespace Siscomat.Api.Controllers
             return Unauthorized(new { message = "Acceso denegado" });
         }
 
+        /// <summary>
+        /// Verifica si el usuario actual está autenticado y devuelve un mensaje de bienvenida con su nombre.
+        /// </summary>
+        /// <remarks>
+        /// Requiere que el usuario esté autenticado.
+        /// </remarks>
+        /// <response code="200">Usuario autenticado, devuelve mensaje de bienvenida.</response>
+        /// <response code="401">Usuario no autenticado, acceso denegado.</response
         [Authorize]
         [HttpGet("logged")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public IActionResult Logged()
         {
             var userName = User.FindFirst(ClaimTypes.Name)?.Value;
