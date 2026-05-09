@@ -4,6 +4,9 @@ using Siscomat.Services;
 
 namespace Siscomat.Api.Controllers
 {
+    /// <summary>
+    /// Controlador para manejar las operaciones relacionadas con los gestores. Proporciona endpoints para crear, leer, actualizar y eliminar gestores. Utiliza el servicio GestorService para realizar la lógica de negocio y manejar la comunicación con la base de datos. Todos los endpoints requieren autenticación para garantizar que solo usuarios autorizados puedan acceder a la información de los gestores.
+    /// </summary>
     [Route("/api/gestores")]
     [ApiController]
     [Authorize]
@@ -16,6 +19,12 @@ namespace Siscomat.Api.Controllers
             _gestorService = gestorService;
         }
 
+        /// <summary>
+        /// Obtiene una lista de todos los gestores registrados en el sistema. Devuelve un objeto con la información básica de cada gestor, incluyendo su id, nombre, apellidos, correo y si es administrador. Este endpoint requiere autenticación para garantizar que solo usuarios autorizados puedan acceder a la información de los gestores.
+        /// </summary>
+        /// <returns>Lista de gestores con información básica.</returns>
+        /// <response code="200">Lista de gestores obtenida exitosamente.</response>
+        /// <response code="401">No autorizado. El usuario no ha iniciado sesión o no tiene permisos para acceder a este recurso.</response>
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
@@ -31,7 +40,18 @@ namespace Siscomat.Api.Controllers
             }));
         }
 
+        /// <summary>
+        /// Obtiene la información de un gestor específico por su id. Devuelve un objeto con la información básica del gestor, incluyendo su id, nombre, apellidos, correo y si es administrador. Este endpoint requiere autenticación para garantizar que solo usuarios autorizados puedan acceder a la información de los gestores.
+        /// </summary>
+        /// <param name="id">ID del gestor a obtener.</param>
+        /// <returns>Información del gestor solicitado.</returns>
+        /// <response code="200">Gestor encontrado y devuelto exitosamente.</response>
+        /// <response code="404">No se encontró un gestor con el ID proporcionado.</response>
+        /// <response code="401">No autorizado. El usuario no ha iniciado sesión o no tiene permisos para acceder a este recurso.</response>
         [HttpGet("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> GetById(int id)
         {
             var gestor = await _gestorService.GetByIdAsync(id);
@@ -48,7 +68,20 @@ namespace Siscomat.Api.Controllers
             });
         }
 
+        /// <summary>
+        /// Permite crear un nuevo gestor en el sistema. Requiere que se proporcione un objeto con la información del gestor a crear, incluyendo su nombre, apellidos, correo, contraseña y si es administrador. El correo debe ser único en el sistema y la contraseña es obligatoria. Este endpoint requiere autenticación para garantizar que solo usuarios autorizados puedan crear nuevos gestores.
+        /// </summary>
+        /// <param name="gestor">Objeto que contiene la información del gestor a crear.</param>
+        /// <returns>Información del gestor creado.</returns>
+        /// <response code="201">Gestor creado exitosamente.</response>
+        /// <response code="400">Solicitud inválida. Faltan datos requeridos o el formato es incorrecto.</response>
+        /// <response code="409">Conflicto. Ya existe un gestor registrado con el mismo correo.</response>
+        /// <response code="401">No autorizado. El usuario no ha iniciado sesión o no tiene permisos para acceder a este recurso.</response>
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> Create([FromBody] Core.Entities.Gestor gestor)
         {
             if (string.IsNullOrWhiteSpace(gestor.PasswordHash))
@@ -76,7 +109,23 @@ namespace Siscomat.Api.Controllers
             });
         }
 
+        /// <summary>
+        /// Actualiza la información de un gestor existente. Requiere que se proporcione el ID del gestor a actualizar y un objeto con la nueva información del gestor, incluyendo su nombre, apellidos, correo, contraseña y si es administrador. El correo debe ser único en el sistema y la contraseña es opcional. Si se proporciona una nueva contraseña, esta será actualizada; de lo contrario, se mantendrá la contraseña actual. Este endpoint requiere autenticación para garantizar que solo usuarios autorizados puedan actualizar la información de los gestores.
+        /// </summary>
+        /// <param name="id">ID del gestor a actualizar.</param>
+        /// <param name="gestor">Objeto que contiene la nueva información del gestor.</param>
+        /// <returns>Información del gestor actualizado.</returns>
+        /// <response code="200">Gestor actualizado exitosamente.</response>
+        /// <response code="400">Solicitud inválida. Faltan datos requeridos o el formato es incorrecto.</response>
+        /// <response code="404">No encontrado. No existe un gestor con el ID proporcionado.</response>
+        /// <response code="409">Conflicto. Ya existe un gestor registrado con el mismo correo.</response>
+        /// <response code="401">No autorizado. El usuario no ha iniciado sesión o no tiene permisos para acceder a este recurso.</response>
         [HttpPut("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> Update(int id, [FromBody] Core.Entities.Gestor gestor)
         {
             var existingGestor = await _gestorService.GetByIdAsync(id);
@@ -115,7 +164,18 @@ namespace Siscomat.Api.Controllers
             });
         }
 
+        /// <summary>
+        /// Elimina un gestor del sistema. Requiere que se proporcione el ID del gestor a eliminar. Si el gestor existe, será eliminado de la base de datos. Este endpoint requiere autenticación para garantizar que solo usuarios autorizados puedan eliminar gestores.
+        /// </summary>
+        /// <param name="id">ID del gestor a eliminar.</param>
+        /// <returns>Mensaje de confirmación de eliminación.</returns>
+        /// <response code="200">Gestor eliminado exitosamente.</response>
+        /// <response code="404">No encontrado. No existe un gestor con el ID proporcionado.</response>
+        /// <response code="401">No autorizado. El usuario no ha iniciado sesión o no tiene permisos para acceder a este recurso.</response>
         [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> Delete(int id)
         {
             var existingGestor = await _gestorService.GetByIdAsync(id);
