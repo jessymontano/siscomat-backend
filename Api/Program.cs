@@ -65,7 +65,7 @@ builder.Services.AddScoped<IPlantillaRepository, PlantillaRepository>();
 builder.Services.AddScoped<ICursoRepository, CursoRepository>();
 
 // 2. Servicios
-builder.Services.AddScoped<AuthService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<PublicService>();
 builder.Services.AddScoped<PlantillaService>();
 builder.Services.AddScoped<ConstanciaService>();

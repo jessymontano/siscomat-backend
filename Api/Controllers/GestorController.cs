@@ -12,9 +12,9 @@ namespace Siscomat.Api.Controllers
     [Authorize]
     public class GestorController : ControllerBase
     {
-        protected readonly GestorService _gestorService;
+        protected readonly IGestorService _gestorService;
 
-        public GestorController(GestorService gestorService)
+        public GestorController(IGestorService gestorService)
         {
             _gestorService = gestorService;
         }
@@ -28,6 +28,14 @@ namespace Siscomat.Api.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
+            if (User.Identity == null || !User.Identity.IsAuthenticated)
+            {
+                return Unauthorized(new { error = "No hay sesión activa." });
+            }
+            if (!User.IsInRole("Admin"))
+            {
+                return StatusCode(403, new { error = "No tienes permisos para realizar esta acción." });
+            }
             var gestores = await _gestorService.GetAllAsync();
             return Ok(gestores.Select(g => new
             {
@@ -84,6 +92,10 @@ namespace Siscomat.Api.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> Create([FromBody] Core.Entities.Gestor gestor)
         {
+            if (gestor.Nombre == null || gestor.Apellido1 == null || gestor.Correo == null || gestor.Nombre == "" || gestor.Apellido1 == "" || gestor.Correo == "")
+            {
+                return BadRequest(new { error = "Campos faltantes." });
+            }
             if (string.IsNullOrWhiteSpace(gestor.PasswordHash))
             {
                 return BadRequest(new { error = "La contraseña es obligatoria." });
@@ -102,7 +114,7 @@ namespace Siscomat.Api.Controllers
             {
                 id = gestor.Id,
                 nombre = gestor.Nombre,
-                apellid_1 = gestor.Apellido1,
+                apellido_1 = gestor.Apellido1,
                 apellido2 = gestor.Apellido2,
                 correo = gestor.Correo,
                 esAdmin = gestor.EsAdmin
@@ -131,27 +143,22 @@ namespace Siscomat.Api.Controllers
             var existingGestor = await _gestorService.GetByIdAsync(id);
             if (existingGestor == null)
                 return NotFound(new { error = "No existe un gestor con ese id." });
-            if (!isValidEmail(gestor.Correo))
+            if (!string.IsNullOrWhiteSpace(gestor.Correo))
             {
-                return BadRequest(new { error = "El formato del correo es inválido." });
-            }
-            var existingCorreo = await _gestorService.GetByCorreoAsync(gestor.Correo);
-            if (existingCorreo != null && existingCorreo.Id != id)
-            {
-                return Conflict(new { error = "Ya existe un gestor registrado con ese correo." });
-            }
-            existingGestor.Nombre = gestor.Nombre;
-            existingGestor.Apellido1 = gestor.Apellido1;
-            existingGestor.Apellido2 = gestor.Apellido2;
-            existingGestor.Correo = gestor.Correo;
-            existingGestor.EsAdmin = gestor.EsAdmin;
-
-            if (!string.IsNullOrWhiteSpace(gestor.PasswordHash))
-            {
-                existingGestor.PasswordHash = BCrypt.Net.BCrypt.HashPassword(gestor.PasswordHash);
+                if (!isValidEmail(gestor.Correo))
+                {
+                    return BadRequest(new { error = "El formato del correo es inválido." });
+                }
+                var existingCorreo = await _gestorService.GetByCorreoAsync(gestor.Correo);
+                if (existingCorreo != null && existingCorreo.Id != id)
+                {
+                    return Conflict(new { error = "Ya existe un gestor registrado con ese correo." });
+                }
             }
 
-            await _gestorService.UpdateAsync(existingGestor);
+            await _gestorService.UpdateAsync(id, gestor);
+            var updatedGestor = await _gestorService.GetByIdAsync(id);
+
             return Ok(new
             {
                 message = "Datos de gestor actualizados correctamente.",

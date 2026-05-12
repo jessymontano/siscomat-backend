@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Siscomat.Core.DTOs;
 using Siscomat.Services;
 using System.Security.Claims;
+using System.Text.RegularExpressions;
 
 namespace Siscomat.Api.Controllers
 {
@@ -15,9 +16,10 @@ namespace Siscomat.Api.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
-        protected readonly AuthService _authService;
+        protected readonly IAuthService _authService;
+        private static readonly Regex EmailRegex = new Regex(@"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$", RegexOptions.Compiled);
 
-        public AuthController(AuthService loginService)
+        public AuthController(IAuthService loginService)
         {
             _authService = loginService;
         }
@@ -34,6 +36,14 @@ namespace Siscomat.Api.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> Login([FromBody] LoginDTO loginDto)
         {
+            if (loginDto.Correo == null || loginDto.Password == null || loginDto.Correo == "" || loginDto.Password == "") 
+            {
+                return BadRequest(new { message = "Correo y contraseña son requeridos" });
+            }
+            if (!isValidEmail(loginDto.Correo))
+            {
+                return BadRequest(new { message = "Formato de correo electrónico inválido" });
+            }
             var gestor = await _authService.LoginAsync(loginDto);
             if (gestor == null)
             {
@@ -79,6 +89,10 @@ namespace Siscomat.Api.Controllers
         [HttpPost("logout")]
         public async Task<IActionResult> Logout()
         {
+            if (User.Identity == null || !User.Identity.IsAuthenticated)
+            {
+                return Unauthorized(new { message = "No hay sesión activa." });
+            }
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return Ok(new { message = "Sesión cerrada exitosamente" });
         }
@@ -103,10 +117,23 @@ namespace Siscomat.Api.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public IActionResult Logged()
         {
+            if (User.Identity == null || !User.Identity.IsAuthenticated)
+            {
+                return Unauthorized(new { message = "No hay sesión activa." });
+            }
             var userName = User.FindFirst(ClaimTypes.Name)?.Value;
             return Ok($"Bienvenido, {userName}");
         }
 
-        
+        /// <summary>
+        /// Valida si el formato del correo electrónico es correcto utilizando una expresión regular. El correo debe seguir el formato estándar de una dirección de correo electrónico, incluyendo un nombre de usuario, el símbolo '@' y un dominio válido.
+        /// </summary>
+        /// <param name="email">El correo electrónico a validar.</param>
+        /// <returns>True si el correo electrónico es válido, de lo contrario, false.</returns>
+        private bool isValidEmail(string email)
+        {
+            if (string.IsNullOrWhiteSpace(email)) return false;
+            return EmailRegex.IsMatch(email);
+        }
     }
 }

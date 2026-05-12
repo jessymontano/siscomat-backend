@@ -7,7 +7,7 @@ using Siscomat.Core.Interfaces;
 
 namespace Siscomat.Services
 {
-    public class AuthService
+    public class AuthService : IAuthService
     {
         protected readonly IGestorRepository _gestorRepository;
 
@@ -22,7 +22,7 @@ namespace Siscomat.Services
             if (gestor == null)
             {
                 return null;
-            } 
+            }
             bool isValidPassword = BCrypt.Net.BCrypt.Verify(loginDto.Password, gestor.PasswordHash);
             if (!isValidPassword)
             {
