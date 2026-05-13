@@ -66,9 +66,9 @@ builder.Services.AddScoped<ICursoRepository, CursoRepository>();
 
 // 2. Servicios
 builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddScoped<PublicService>();
-builder.Services.AddScoped<PlantillaService>();
-builder.Services.AddScoped<ConstanciaService>();
+builder.Services.AddScoped<IPublicService, PublicService>();
+builder.Services.AddScoped<IPlantillaService, PlantillaService>();
+builder.Services.AddScoped<IConstanciaService, ConstanciaService>();
 builder.Services.AddScoped<GestorService>();
 
 // 3. HttpClient para microservicio Python
