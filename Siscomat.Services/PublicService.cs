@@ -6,7 +6,7 @@ using Siscomat.Core.Interfaces;
 
 namespace Siscomat.Services
 {
-    public class PublicService
+    public class PublicService : IPublicService
     {
         private readonly IParticipanteRepository _participanteRepo;
         private readonly IConstanciaRepository _constanciaRepo;

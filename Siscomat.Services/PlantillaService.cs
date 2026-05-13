@@ -18,7 +18,7 @@ namespace Siscomat.Services
         }
     }
 
-    public class PlantillaService
+    public class PlantillaService : IPlantillaService
     {
         private readonly IPlantillaRepository _plantillaRepo;
         private readonly IHttpClientFactory _httpClientFactory;

@@ -46,7 +46,7 @@ namespace Siscomat.Services
     public record ErrorFila(int Fila, string Motivo);
     public record CargaConstanciasResponse(int Registrados, int ConstanciasGeneradas, List<ErrorFila> Errores);
 
-    public class ConstanciaService
+    public class ConstanciaService : IConstanciaService
     {
         private readonly IConstanciaRepository _constanciaRepo;
         private readonly IParticipanteRepository _participanteRepo;

@@ -1,30 +1,26 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Siscomat.Core.Interfaces;
 using Siscomat.Services;
 
 namespace Siscomat.Api.Controllers
 {
     /// <summary>
-    /// Controlador para manejar las operaciones relacionadas con las plantillas de constancias. Proporciona endpoints para listar todas las plantillas, obtener el archivo de una plantilla especÌfica, subir nuevas plantillas y eliminar plantillas existentes. Utiliza el servicio PlantillaService para realizar la lÛgica de negocio y manejar la comunicaciÛn con la base de datos. Todos los endpoints requieren autenticaciÛn para garantizar que solo los gestores autorizados puedan gestionar las plantillas.
+    /// Controlador para manejar las operaciones relacionadas con las plantillas de constancias. Proporciona endpoints para listar todas las plantillas, obtener el archivo de una plantilla espec√≠fica, subir nuevas plantillas y eliminar plantillas existentes. Utiliza el servicio PlantillaService para realizar la l√≥gica de negocio y manejar la comunicaci√≥n con la base de datos. Todos los endpoints requieren autenticaci√≥n para garantizar que solo los gestores autorizados puedan gestionar las plantillas.
     /// </summary>
     [ApiController]
     [Route("api/plantillas")]
     [Authorize]
-    public class PlantillaController : ControllerBase
+    public class PlantillaController(IPlantillaService plantillaService) : ControllerBase
     {
-        private readonly PlantillaService _plantillaService;
-
-        public PlantillaController(PlantillaService plantillaService)
-        {
-            _plantillaService = plantillaService;
-        }
+        private readonly IPlantillaService _plantillaService = plantillaService;
 
         /// <summary>
-        /// Obtiene una lista de todas las plantillas disponibles en el sistema, incluyendo informaciÛn b·sica como el ID, nombre, fecha de creaciÛn y si la plantilla ha sido utilizada para generar constancias. Este endpoint permite a los gestores ver r·pidamente quÈ plantillas tienen disponibles y cu·les ya han sido usadas, lo que puede ayudar en la gestiÛn y organizaciÛn de las plantillas.
+        /// Obtiene una lista de todas las plantillas disponibles en el sistema, incluyendo informaci√≥n b√°sica como el ID, nombre, fecha de creaci√≥n y si la plantilla ha sido utilizada para generar constancias. Este endpoint permite a los gestores ver r√°pidamente qu√© plantillas tienen disponibles y cu√°les ya han sido usadas, lo que puede ayudar en la gesti√≥n y organizaci√≥n de las plantillas.
         /// </summary>
-        /// <returns>Lista de plantillas con informaciÛn b·sica.</returns>
+        /// <returns>Lista de plantillas con informaci√≥n b√°sica.</returns>
         /// <response code="200">Lista de plantillas obtenida exitosamente.</response>
-        /// <response code="401">No autorizado. El usuario no ha iniciado sesiÛn o no tiene permisos para acceder a este recurso.</response>
+        /// <response code="401">No autorizado. El usuario no ha iniciado sesi√≥n o no tiene permisos para acceder a este recurso.</response>
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -41,13 +37,13 @@ namespace Siscomat.Api.Controllers
         }
 
         /// <summary>
-        /// Obtiene el archivo PDF de una plantilla especÌfica utilizando su ID. Este endpoint es ˙til para que los gestores puedan descargar o previsualizar la plantilla antes de usarla para generar constancias. Si la plantilla no existe, se devuelve un error 404 indicando que no se encontrÛ una plantilla con ese ID.
+        /// Obtiene el archivo PDF de una plantilla espec√≠fica utilizando su ID. Este endpoint es √∫til para que los gestores puedan descargar o previsualizar la plantilla antes de usarla para generar constancias. Si la plantilla no existe, se devuelve un error 404 indicando que no se encontr√≥ una plantilla con ese ID.
         /// </summary>
         /// <param name="id">ID de la plantilla a obtener.</param>
         /// <returns>Archivo PDF de la plantilla.</returns>
         /// <response code="200">Archivo PDF de la plantilla obtenido exitosamente.</response>
-        /// <response code="404">No se encontrÛ una plantilla con el ID proporcionado.</response>
-        /// <response code="401">No autorizado. El usuario no ha iniciado sesiÛn o no tiene permisos para acceder a este recurso.</response>
+        /// <response code="404">No se encontr√≥ una plantilla con el ID proporcionado.</response>
+        /// <response code="401">No autorizado. El usuario no ha iniciado sesi√≥n o no tiene permisos para acceder a este recurso.</response>
         [HttpGet("{id}/archivo")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -62,14 +58,14 @@ namespace Siscomat.Api.Controllers
         }
 
         /// <summary>
-        /// Permite subir una nueva plantilla al sistema. El gestor debe proporcionar un nombre para la plantilla y un archivo PDF que contenga los placeholders requeridos. El sistema validar· que el archivo sea un PDF y que contenga los placeholders necesarios antes de guardarlo. Si la plantilla es v·lida, se guardar· en el sistema y se devolver· una respuesta con la informaciÛn de la plantilla creada. Si la plantilla no es v·lida, se devolver· un error indicando quÈ placeholders faltan o si el archivo no es un PDF.
+        /// Permite subir una nueva plantilla al sistema. El gestor debe proporcionar un nombre para la plantilla y un archivo PDF que contenga los placeholders requeridos. El sistema validar√° que el archivo sea un PDF y que contenga los placeholders necesarios antes de guardarlo. Si la plantilla es v√°lida, se guardar√° en el sistema y se devolver√° una respuesta con la informaci√≥n de la plantilla creada. Si la plantilla no es v√°lida, se devolver√° un error indicando qu√© placeholders faltan o si el archivo no es un PDF.
         /// </summary>
         /// <param name="nombre">Nombre de la plantilla a subir.</param>
         /// <param name="archivo">Archivo PDF de la plantilla.</param>
-        /// <returns>InformaciÛn de la plantilla creada.</returns>
+        /// <returns>Informaci√≥n de la plantilla creada.</returns>
         /// <response code="201">Plantilla creada exitosamente.</response>
-        /// <response code="400">Solicitud inv·lida. Faltan datos requeridos o el formato es incorrecto.</response>
-        /// <response code="401">No autorizado. El usuario no ha iniciado sesiÛn o no tiene permisos para acceder a este recurso.</response>
+        /// <response code="400">Solicitud inv√°lida. Faltan datos requeridos o el formato es incorrecto.</response>
+        /// <response code="401">No autorizado. El usuario no ha iniciado sesi√≥n o no tiene permisos para acceder a este recurso.</response>
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -109,14 +105,14 @@ namespace Siscomat.Api.Controllers
         }
 
         /// <summary>
-        /// Elimina una plantilla existente utilizando su ID. Este endpoint permite a los gestores eliminar plantillas que ya no necesitan o que fueron subidas por error. Sin embargo, si la plantilla ya ha sido utilizada para generar constancias, el sistema no permitir· eliminarla y devolver· un error indicando que la plantilla est· en uso. Si la plantilla se elimina exitosamente, se devolver· un mensaje de confirmaciÛn.
+        /// Elimina una plantilla existente utilizando su ID. Este endpoint permite a los gestores eliminar plantillas que ya no necesitan o que fueron subidas por error. Sin embargo, si la plantilla ya ha sido utilizada para generar constancias, el sistema no permitir√° eliminarla y devolver√° un error indicando que la plantilla est√° en uso. Si la plantilla se elimina exitosamente, se devolver√° un mensaje de confirmaci√≥n.
         /// </summary>
         /// <param name="id">ID de la plantilla a eliminar.</param>
-        /// <returns>Resultado de la operaciÛn de eliminaciÛn.</returns>
+        /// <returns>Resultado de la operaci√≥n de eliminaci√≥n.</returns>
         /// <response code="200">Plantilla eliminada exitosamente.</response>
         /// <response code="404">No encontrado. No existe una plantilla con el ID proporcionado.</response>
         /// <response code="409">Conflicto. La plantilla ya fue usada para generar constancias y no puede eliminarse.</response>
-        /// <response code="401">No autorizado. El usuario no ha iniciado sesiÛn o no tiene permisos para acceder a este recurso.</response>
+        /// <response code="401">No autorizado. El usuario no ha iniciado sesi√≥n o no tiene permisos para acceder a este recurso.</response>
         [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]

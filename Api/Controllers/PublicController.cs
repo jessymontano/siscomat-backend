@@ -1,29 +1,25 @@
 using Microsoft.AspNetCore.Mvc;
+using Siscomat.Core.Interfaces;
 using Siscomat.Services;
 
 namespace Siscomat.Api.Controllers
 {
     /// <summary>
-    /// Controlador para manejar los endpoints p˙blicos relacionados con las constancias. Proporciona endpoints para que los participantes puedan consultar sus constancias utilizando su folio, descargar el PDF de una constancia especÌfica y validar la autenticidad de una constancia utilizando su ID. Este controlador no requiere autenticaciÛn, ya que est· diseÒado para ser accesible por cualquier persona que tenga la informaciÛn necesaria para realizar las consultas. Utiliza el servicio PublicService para realizar la lÛgica de negocio y manejar la comunicaciÛn con la base de datos y el motor de generaciÛn de PDF.
+    /// Controlador para manejar los endpoints p√∫blicos relacionados con las constancias. Proporciona endpoints para que los participantes puedan consultar sus constancias utilizando su folio, descargar el PDF de una constancia espec√≠fica y validar la autenticidad de una constancia utilizando su ID. Este controlador no requiere autenticaci√≥n, ya que est√° dise√±ado para ser accesible por cualquier persona que tenga la informaci√≥n necesaria para realizar las consultas. Utiliza el servicio PublicService para realizar la l√≥gica de negocio y manejar la comunicaci√≥n con la base de datos y el motor de generaci√≥n de PDF.
     /// </summary>
     [ApiController]
     [Route("api/public")]
-    public class PublicController : ControllerBase
+    public class PublicController(IPublicService publicService) : ControllerBase
     {
-        private readonly PublicService _publicService;
-
-        public PublicController(PublicService publicService)
-        {
-            _publicService = publicService;
-        }
+        private readonly IPublicService _publicService = publicService;
 
         /// <summary>
-        /// Obtiene las constancias asociadas a un participante utilizando su folio. El endpoint recibe el folio como par·metro en la URL y devuelve la informaciÛn del participante junto con una lista de sus constancias, incluyendo el ID de cada constancia y el nombre del curso asociado. Si no se encuentra un participante con el folio proporcionado, se devuelve un error 404 con un mensaje indicando que no existe un participante con ese folio.
+        /// Obtiene las constancias asociadas a un participante utilizando su folio. El endpoint recibe el folio como par√°metro en la URL y devuelve la informaci√≥n del participante junto con una lista de sus constancias, incluyendo el ID de cada constancia y el nombre del curso asociado. Si no se encuentra un participante con el folio proporcionado, se devuelve un error 404 con un mensaje indicando que no existe un participante con ese folio.
         /// </summary>
         /// <param name="folio">Folio del participante.</param>
-        /// <returns>InformaciÛn del participante y sus constancias.</returns>
+        /// <returns>Informaci√≥n del participante y sus constancias.</returns>
         /// <response code="200">Constancias obtenidas exitosamente.</response>
-        /// <response code="404">No se encontrÛ un participante con el folio proporcionado.</response>
+        /// <response code="404">No se encontr√≥ un participante con el folio proporcionado.</response>
         [HttpGet("constancia/{folio}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -49,12 +45,12 @@ namespace Siscomat.Api.Controllers
         }
 
         /// <summary>
-        /// Permite descargar el PDF de una constancia especÌfica utilizando su ID. El endpoint recibe el ID de la constancia como par·metro en la URL, genera el PDF correspondiente utilizando el servicio PublicService y devuelve el archivo PDF como respuesta. Si no se encuentra una constancia con el ID proporcionado, se devuelve un error 404 con un mensaje indicando que no existe una constancia con ese ID.
+        /// Permite descargar el PDF de una constancia espec√≠fica utilizando su ID. El endpoint recibe el ID de la constancia como par√°metro en la URL, genera el PDF correspondiente utilizando el servicio PublicService y devuelve el archivo PDF como respuesta. Si no se encuentra una constancia con el ID proporcionado, se devuelve un error 404 con un mensaje indicando que no existe una constancia con ese ID.
         /// </summary>
         /// <param name="id">ID de la constancia a descargar.</param>
         /// <returns>Archivo PDF de la constancia.</returns>
         /// <response code="200">Archivo PDF de la constancia obtenido exitosamente.</response>
-        /// <response code="404">No se encontrÛ una constancia con el ID proporcionado.</response>
+        /// <response code="404">No se encontr√≥ una constancia con el ID proporcionado.</response>
         [HttpGet("constancia/{id:Guid}/pdf")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -69,12 +65,12 @@ namespace Siscomat.Api.Controllers
         }
 
         /// <summary>
-        /// Valida la autenticidad de una constancia utilizando su ID. El endpoint recibe el ID de la constancia como par·metro en la URL, verifica si existe una constancia con ese ID utilizando el servicio PublicService y devuelve la informaciÛn de la constancia si es v·lida. Si no se encuentra una constancia con el ID proporcionado, se devuelve un error 404 con un mensaje indicando que no existe una constancia con ese ID. Este endpoint es ˙til para que terceros puedan verificar la autenticidad de una constancia sin necesidad de acceder a informaciÛn sensible del participante o del curso.
+        /// Valida la autenticidad de una constancia utilizando su ID. El endpoint recibe el ID de la constancia como par√°metro en la URL, verifica si existe una constancia con ese ID utilizando el servicio PublicService y devuelve la informaci√≥n de la constancia si es v√°lida. Si no se encuentra una constancia con el ID proporcionado, se devuelve un error 404 con un mensaje indicando que no existe una constancia con ese ID. Este endpoint es √∫til para que terceros puedan verificar la autenticidad de una constancia sin necesidad de acceder a informaci√≥n sensible del participante o del curso.
         /// </summary>
         /// <param name="id">ID de la constancia a validar.</param>
-        /// <returns>InformaciÛn de la constancia si es v·lida.</returns>
-        /// <response code="200">Constancia v·lida.</response>
-        /// <response code="404">No se encontrÛ una constancia con el ID proporcionado.</response>
+        /// <returns>Informaci√≥n de la constancia si es v√°lida.</returns>
+        /// <response code="200">Constancia v√°lida.</response>
+        /// <response code="404">No se encontr√≥ una constancia con el ID proporcionado.</response>
         [HttpGet("validar/{id:Guid}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]

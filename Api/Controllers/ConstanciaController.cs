@@ -1,5 +1,5 @@
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Siscomat.Core.Interfaces;
 using Siscomat.Services;
 
 namespace Siscomat.Api.Controllers
@@ -9,15 +9,9 @@ namespace Siscomat.Api.Controllers
     /// </summary>
     [ApiController]
     [Route("api/[controller]")]
-    public class ConstanciasController : ControllerBase
+    public class ConstanciasController(IConstanciaService constanciaService) : ControllerBase
     {
-        private readonly ConstanciaService _constanciaService;
-
-        public ConstanciasController(ConstanciaService constanciaService)
-        {
-            _constanciaService = constanciaService;
-        }
-
+        private readonly IConstanciaService _constanciaService = constanciaService;
 
         /// <summary>
         /// Permite previsualizar una constancia generada a partir de una plantilla y datos específicos.
